@@ -1,41 +1,63 @@
-import React, { createContext, useEffect, useState, useRef } from "react";
+import React, {
+    createContext,
+    useEffect,
+    useState,
+    useRef,
+    useReducer,
+    useCallback
+} from "react";
+import { useLocalStorage } from "../hooks/Store";
+import { reducer } from "../reducers/Reducer";
 
 export const TasksContext = createContext({});
 
 const TasksContextProvider = props => {
-    const initialState = JSON.parse(localStorage.getItem("tasks")) || [];
-
-    const [tasks, setTasks] = useState(initialState);
-    const [editItem, setEditItem] = useState(null);
+    const [storedTasks, setStoredTasks] = useLocalStorage("tasks", []);
+    const [height, setHeight] = useState(0);
+    const [refHeight, setRefHeight] = useState();
 
     const editInputRef = useRef();
 
+    const [state, dispatch] = useReducer(reducer, {
+        tasks: Array.isArray(storedTasks) ? storedTasks : []
+    });
+    const { tasks, editItem } = state;
+
     useEffect(() => {
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-    }, [tasks]);
+        if (refHeight && refHeight.current) {
+            setHeight(refHeight.current.getHeight());
+        }
+    }, [refHeight, tasks]);
+
+    useEffect(() => {
+        setStoredTasks(tasks);
+    }, [tasks, setStoredTasks]);
 
     const uniq = () => Date.now();
 
-    const addTask = title => {
-        setTasks([...tasks, { title, id: uniq() }]);
-    };
+    const addTask = useCallback(
+        title => {
+            dispatch({ type: "ADD_TASK", payload: { title: title, id: uniq() } });
+        },
+        [dispatch]
+    );
 
     const deleteTask = id => {
-        setTasks(tasks.filter(task => task.id !== id));
+        dispatch({ type: "DELETE_TASK", payload: { id } });
     };
 
     const findItem = id => {
-        const item = tasks.find(task => task.id === id);
+        dispatch({ type: "FIND_TASK", payload: { id } });
 
-        setEditItem(item);
         editInputRef.current.focus();
     };
-    // Edit task
-    const editTask = (title, id) => {
-        const newTasks = tasks.map(task => (task.id === id ? { title, id } : task));
 
-        setTasks(newTasks);
-        setEditItem(null);
+    const editTask = (title, id) => {
+        dispatch({ type: "EDIT_TASK", payload: { title, id } });
+    };
+
+    const setReference = ref => {
+        setRefHeight(ref);
     };
 
     return (
@@ -47,7 +69,10 @@ const TasksContextProvider = props => {
                 editTask,
                 editItem,
                 findItem,
-                editInputRef
+                editInputRef,
+                height,
+                refHeight,
+                setReference
             }}
         >
             {props.children}

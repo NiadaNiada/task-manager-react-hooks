@@ -1,17 +1,23 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { TasksContext } from "../context/TaskContext";
 import Task from "./Task";
 
 const TaskList = () => {
     const { tasks } = useContext(TasksContext);
 
+    const mappedTasks = useMemo(
+        () =>
+            tasks.map(task => {
+                return <Task task={task} key={task.id} />;
+            }),
+        [tasks]
+    );
+
     return (
         <div>
             {tasks.length ? (
                 <ol className="list">
-                    {tasks.map(task => {
-                        return <Task task={task} key={task.id} />;
-                    })}
+                    {mappedTasks}
                 </ol>
             ) : (
                 <div className="no-tasks">No Tasks</div>
