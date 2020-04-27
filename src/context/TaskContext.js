@@ -56,6 +56,12 @@ const TasksContextProvider = props => {
         dispatch({ type: "EDIT_TASK", payload: { title, id } });
     };
 
+    const clearOrCancel = () => {
+        if (editItem) {
+            dispatch({ type: "CANCEL_EDIT"});
+        }
+    };
+
     const setReference = ref => {
         setRefHeight(ref);
     };
@@ -72,7 +78,8 @@ const TasksContextProvider = props => {
                 editInputRef,
                 height,
                 refHeight,
-                setReference
+                setReference,
+                clearOrCancel
             }}
         >
             {props.children}

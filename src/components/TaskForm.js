@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { TasksContext } from "../context/TaskContext";
 
 const TaskForm = () => {
-    const { addTask, editTask, editItem, editInputRef } = useContext(
+    const { addTask, editTask, editItem, editInputRef, clearOrCancel } = useContext(
         TasksContext
     );
     const [title, setTitle] = useState("");
@@ -43,6 +43,9 @@ const TaskForm = () => {
             <div className="buttons">
                 <button type="submit" className="btn add-task-btn">
                     {editItem ? "Edit Task" : "Add Task"}
+                </button>
+                <button className="btn clear-btn" onClick={clearOrCancel}>
+                    {editItem ? "Cancel Editing" : "Clear"}
                 </button>
             </div>
         </form>

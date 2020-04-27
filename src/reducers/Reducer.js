@@ -21,9 +21,12 @@ export const reducer = (state, action) => {
         FIND_TASK: (state, payload) => ({
             ...state,
             editItem: state.tasks.find(task => task.id === payload.id)
+        }),
+        CANCEL_EDIT: (state, payload) => ({
+            ...state,
+            editItem: null
         })
     };
-    console.log("type", type);
 
     return handlers[type](state, payload) || state;
 };
